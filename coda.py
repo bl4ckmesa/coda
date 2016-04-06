@@ -87,7 +87,7 @@ def random_coda():
     return coda
 
 def prnt(p,t):
-    print p.name + p.actions[p.move][t]
+    print "        " + p.name + p.actions[p.move][t]
 
 def conflict(p1, p2):
     if not p1.interrupted:
@@ -97,32 +97,47 @@ def conflict(p1, p2):
                 if p2.move == "A" and not p2.interrupted:
                     p1.hit_points -= 1
                     prnt(p1,'dtd')
+                    prnt(p2,'dtd')
                 elif p2.move == "O" and not p2.interrupted:
                     p1.hit_points -= 3
                     prnt(p1,'dts')
+                    prnt(p2,'eco')
                 else:
                     prnt(p1,'dmg')
                 p2.interrupted = False
             elif p2.move == "D":
                 prnt(p1,'def')
+                prnt(p2,'blk')
                 p1.interrupted = True
         elif p1.move == "D":
             if p2.move == "A":
                 prnt(p1,'blk')
+                prnt(p2,'def')
                 p2.interrupted = True
-            elif p2.move in [ "D", "C" ]:
+            elif p2.move  == "D":
                 prnt(p1,'def')
+                prnt(p2,'def')
+            elif p2.move == "C":
+                prnt(p1,'def')
+                prnt(p2,'ico')
             elif p2.move == "O":
                 prnt(p1,'dco')
+                prnt(p2,'ecr')
                 p1.hit_points -= 2
         elif p1.move == "C":
-            if p2.move in [ "D", "C" ]:
+            if p2.move == "D":
                 prnt(p1,'ico')
+                prnt(p2,'def')
+            elif p2.move == "C":
+                prnt(p1,'ico')
+                prnt(p2,'ico')
             elif p2.move == "A":
                 prnt(p1,'icd')
+                prnt(p2,'dmg')
                 p1.hit_points -= 1
             elif p2.move == "O":
                 prnt(p1,'ics')
+                prnt(p2,'eco')
                 p1.hit_points -= 3
         elif p1.move == "O":
             if p1.hit_points == 3:
@@ -131,10 +146,17 @@ def conflict(p1, p2):
                     p2.hit_points -= 3
                 elif p2.move == "D":
                     prnt(p1,'ecr')
+                    prnt(p2,'dco')
                     p2.hit_points -= 2
+                elif p2.move == "A":
+                    prnt(p1,'eco')
+                    prnt(p2,'dts')
+                    p2.hit_points -= 3
+                    p1.hit_points -= 1
             else:
                 if p2.move in [ "C", "D" ] or p2.interrupted:
                     prnt(p1,'fco')
+                    prnt(p2,'ico')
                 elif p2.move == "A":
                     prnt(p1,'fcd')
                     p1.hit_points -= 1
@@ -142,15 +164,15 @@ def conflict(p1, p2):
                     prnt(p1,'fcs')
                     p1.hit_points -= 3
     else:
-        print p1.name + " is interrupted!"
+        print "        " + p1.name + " is interrupted!"
         if p2.move == "A" and not p2.interrupted:
-            prnt(p2,'dtd')
+            prnt(p2,'dmg')
             p1.hit_points -= 1
-        elif p2.move == "O"
+        elif p2.move == "O":
             if p2.hit_points == 3:
                 prnt(p2,'eco')
                 p1.hit_points -= 3
-            else
+            else:
                 prnt(p2,'fco')
         elif p2.move == "D":
             prnt(p2,'def')
@@ -191,15 +213,17 @@ def fight(p1, p2, playback = "Normal"):
     print p2.name + ": " + p2.coda
     rounds = [0,1,2,3,4]
     for r in rounds:
-        print "Round %d.  Fight!" % (r + 1)
+        print "    Round %d.  Fight! (Current HP:  P1 %d, P2 %d)" % ((r + 1),p1.hit_points, p2.hit_points)
         p1.move = p1.coda[r]
         p2.move = p2.coda[r]
         conflict(p1,p2)
-        if 0 in [ p1.hit_points, p2.hit_points ]:
+        if p1.hit_points <= 0 or p2.hit_points <= 0:
             break
-    print "All rounds are over."
-    print p1.name + "HP: " + str(p1.hit_points)
-    print p2.name + "HP: " + str(p2.hit_points)
+    print "All rounds are over. (P1: %d), (P2: %d)" % (p1.hit_points, p2.hit_points)
+    if p1.hit_points <= 0:
+        print p1.name + ", " + p1.actions['KO']
+    if p2.hit_points <= 0:
+        print p2.name + ", " + p2.actions['KO']
     if p2.hit_points > p1.hit_points:
         print p2.name + " wins!"
     elif p2.hit_points < p1.hit_points:
@@ -210,10 +234,10 @@ def fight(p1, p2, playback = "Normal"):
 if __name__ == "__main__":
     p1 = Player()
     p1.coda = random_coda()
-    p1.coda = "AAAAA"
+    #p1.coda = "CODAA"
     p1.name = "Player 1"
     p2 = Player()
     p2.coda = random_coda()
-    p2.coda = "ADAAA"
+    #p2.coda = "ACOCO"
     p2.name = "Player 2"
     fight(p1,p2)
