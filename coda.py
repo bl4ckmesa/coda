@@ -48,27 +48,27 @@ class Player:
     interrupted = False
     actions = {
                 'A' : { 
-                  'dmg' : ' attacks and deals 1 damage!',
-                  'def' : ' attacks but is rebuffed!',
-                  'dtd' : ' attacks and deals and takes damage!',
-                  'dts' : ' deals damage as he gets totally stomped!'
+                  'attack_damage' : ' attacks and deals 1 damage!',
+                  'attack_defended' : ' attacks but is rebuffed!',
+                  'attack_both_damage' : ' attacks and deals and takes damage!',
+                  'attack_while_comboed' : ' deals damage as he gets totally stomped!'
                 },
                 'D' : {
-                  'def' : ' blocks... nothing!',
-                  'blk' : ' blocks the attack!',
-                  'dco' : ' blocks part of the attack!'
+                  'defends' : ' blocks... nothing!',
+                  'defends_blocks' : ' blocks the attack!',
+                  'defends_while_comboed' : ' blocks part of the attack!'
                 },
                 'C' : {
-                  'ico' : ' prepares for combo!',
-                  'icd' : ' initiates combo and loses his wingman!',
-                  'ics' : ' gets totally stomped on as he starts his combo!'
+                  'combo_initiate' : ' prepares for combo!',
+                  'combo_init_and_damaged' : ' initiates combo and loses his wingman!',
+                  'combo_init_while_comboed' : ' gets totally stomped on as he starts his combo!'
                 },
                 'O' : {
-                  'eco' : ' comes down with a crushing blow!',
-                  'ecr' : ' smashes through your defenses!',
-                  'fco' : ' can\'t find his combo tag team!',
-                  'fcd' : ' takes damage while looking for his fallen teammate!',
-                  'fcs' : ' gets totally stomped on as he looks for nothing!'
+                  'execute_combo' : ' comes down with a crushing blow!',
+                  'execute_combo_while_defended' : ' smashes through your defenses!',
+                  'failed_combo' : ' can\'t find his combo tag team!',
+                  'failed_combo_and_damaged' : ' takes damage while looking for his fallen teammate!',
+                  'failed_combo_while_comboed' : ' gets totally stomped on as he looks for nothing!'
                 },
                 'KO' : 'Your heroes have fallen...'
               }
@@ -91,93 +91,158 @@ def prnt(p,t):
 
 def conflict(p1, p2):
     if not p1.interrupted:
-        if p1.move == "A":
-            if p2.move in [ "A", "C", "O" ] or p2.interrupted:
+        if p2.interrupted:
+            print "        " + p2.name + " is interrupted!"
+            if p1.move == "A":
+                prnt(p1,'attack_damage')
                 p2.hit_points -= 1
-                if p2.move == "A" and not p2.interrupted:
-                    p1.hit_points -= 1
-                    prnt(p1,'dtd')
-                    prnt(p2,'dtd')
-                elif p2.move == "O" and not p2.interrupted:
-                    p1.hit_points -= 3
-                    prnt(p1,'dts')
-                    prnt(p2,'eco')
+            elif p1.move == "D":
+                prnt(p1,'defends')
+            elif p1.move == "C":
+                prnt(p1,'combo_initiate')
+            elif p1.move == "O":
+                if p1.hit_points >= 3:
+                    prnt(p1,'execute_combo')
+                    p2.hit_points -= 3
                 else:
-                    prnt(p1,'dmg')
-                p2.interrupted = False
-            elif p2.move == "D":
-                prnt(p1,'def')
-                prnt(p2,'blk')
-                p1.interrupted = True
-        elif p1.move == "D":
-            if p2.move == "A":
-                prnt(p1,'blk')
-                prnt(p2,'def')
-                p2.interrupted = True
-            elif p2.move  == "D":
-                prnt(p1,'def')
-                prnt(p2,'def')
-            elif p2.move == "C":
-                prnt(p1,'def')
-                prnt(p2,'ico')
-            elif p2.move == "O":
-                prnt(p1,'dco')
-                prnt(p2,'ecr')
-                p1.hit_points -= 2
-        elif p1.move == "C":
-            if p2.move == "D":
-                prnt(p1,'ico')
-                prnt(p2,'def')
-            elif p2.move == "C":
-                prnt(p1,'ico')
-                prnt(p2,'ico')
-            elif p2.move == "A":
-                prnt(p1,'icd')
-                prnt(p2,'dmg')
-                p1.hit_points -= 1
-            elif p2.move == "O":
-                prnt(p1,'ics')
-                prnt(p2,'eco')
-                p1.hit_points -= 3
-        elif p1.move == "O":
-            if p1.hit_points == 3:
-                if p2.move == "C" or p2.interrupted:
-                    prnt(p1,'eco')
-                    p2.hit_points -= 3
+                    prnt(p1,'failed_combo')
+            p2.interrupted = False
+        else:
+            if p1.move == "A":
+                if p2.move  == "A":
+                    prnt(p1,'attack_both_damage')
+                    prnt(p2,'attack_both_damage')
+                    p1.hit_points -= 1
+                    p2.hit_points -= 1
                 elif p2.move == "D":
-                    prnt(p1,'ecr')
-                    prnt(p2,'dco')
-                    p2.hit_points -= 2
-                elif p2.move == "A":
-                    prnt(p1,'eco')
-                    prnt(p2,'dts')
-                    p2.hit_points -= 3
+                    prnt(p1,'attack_defended')
+                    prnt(p2,'defends_blocks')
+                    p1.interrupted = True
+                elif p2.move == "C":
+                    prnt(p1,'attack_damage')
+                    prnt(p2,'combo_init_and_damaged')
+                    p2.hit_points -= 1
+                elif p2.move == "O":
+                    if p2.hit_points >= 3:
+                        prnt(p1,'attack_while_comboed')
+                        prnt(p2,'execute_combo')
+                        p1.hit_points -= 3
+                        p2.hit_points -= 1
+                    else:
+                        prnt(p1,'attack_damage')
+                        prnt(p2,'failed_combo_and_damaged')
+                        p2.hit_points -= 1
+            elif p1.move == "D":
+                if p2.move == "A":
+                    prnt(p1,'defends_blocks')
+                    prnt(p2,'attack_defended')
+                    p2.interrupted = True
+                elif p2.move  == "D":
+                    prnt(p1,'defends')
+                    prnt(p2,'defends')
+                elif p2.move == "C":
+                    prnt(p1,'defends')
+                    prnt(p2,'combo_initiate')
+                elif p2.move == "O":
+                    if p2.hit_points >= 3:
+                        prnt(p1,'defends_while_comboed')
+                        prnt(p2,'execute_combo_while_defended')
+                        p1.hit_points -= 2
+                    else:
+                        prnt(p1,'defends')
+                        prnt(p2,'failed_combo')
+            elif p1.move == "C":
+                if p2.move == "A":
+                    prnt(p1,'combo_init_and_damaged')
+                    prnt(p2,'attack_damage')
                     p1.hit_points -= 1
-            else:
-                if p2.move in [ "C", "D" ] or p2.interrupted:
-                    prnt(p1,'fco')
-                    prnt(p2,'ico')
-                elif p2.move == "A":
-                    prnt(p1,'fcd')
-                    p1.hit_points -= 1
-                elif p2.move == "O" and p2.hit_points == 3:
-                    prnt(p1,'fcs')
-                    p1.hit_points -= 3
+                elif p2.move == "D":
+                    prnt(p1,'combo_initiate')
+                    prnt(p2,'defends')
+                elif p2.move == "C":
+                    prnt(p1,'combo_initiate')
+                    prnt(p2,'combo_initiate')
+                elif p2.move == "O":
+                    if p2.hit_points >= 3:
+                        prnt(p1,'combo_init_while_comboed')
+                        prnt(p2,'execute_combo')
+                        p1.hit_points -= 3
+                    else:
+                        prnt(p1,'combo_initiate')
+                        prnt(p2,'failed_combo')
+            elif p1.move == "O":
+                if p1.hit_points == 3:
+                    if not p2.interrupted:
+                        if p2.move == "A":
+                            prnt(p1,'execute_combo')
+                            prnt(p2,'attack_while_comboed')
+                            p2.hit_points -= 3
+                            p1.hit_points -= 1
+                        elif p2.move == "D":
+                            prnt(p1,'execute_combo_while_defended')
+                            prnt(p2,'defends_while_comboed')
+                            p2.hit_points -= 2
+                        elif p2.move == "C":
+                            prnt(p1,'execute_combo')
+                            prnt(p2,'combo_init_while_comboed')
+                            p2.hit_points -= 3
+                        elif p2.move == "O":
+                            if p1.hit_points >= 3 and p2.hit_points >= 3:
+                                prnt(p1,'execute_combo')
+                                prnt(p2,'execute_combo')
+                                p2.hit_points -= 3
+                                p1.hit_points -= 3
+                            elif p1.hit_points >= 3 and p2.hit_points < 3:
+                                prnt(p1,'execute_combo')
+                                prnt(p2,'failed_combo_while_comboed')
+                                p2.hit_points -= 3
+                            elif p1.hit_points < 3 and p2.hit_points >= 3:
+                                prnt(p1,'failed_combo_while_comboed')
+                                prnt(p2,'execute_combo')
+                                p1.hit_points -= 3
+                    else:
+                        print "        " + p2.name + " is interrupted!"
+                        prnt(p1,'execute_combo')
+                        p2.hit_points -= 3
+                        p2.interrupted = False
+                else:
+                    if not p2.interrupted:
+                        if p2.move == "A":
+                            prnt(p1,'failed_combo_and_damaged')
+                            p1.hit_points -= 1
+                        elif p2.move == "D":
+                            prnt(p1,'failed_combo')
+                            prnt(p2,'defends')
+                        elif p2.move == "C":
+                            prnt(p1,'failed_combo')
+                            prnt(p2,'combo_initiate')
+                        elif p2.move == "O":
+                            if p2.hit_points >= 3:
+                                prnt(p1,'failed_combo_while_comboed')
+                                prnt(p2,'execute_combo')
+                                p1.hit_points -= 3
+                            else:
+                                prnt(p1,'failed_combo')
+                                prnt(p2,'failed_combo')
     else:
         print "        " + p1.name + " is interrupted!"
-        if p2.move == "A" and not p2.interrupted:
-            prnt(p2,'dmg')
-            p1.hit_points -= 1
-        elif p2.move == "O":
-            if p2.hit_points == 3:
-                prnt(p2,'eco')
-                p1.hit_points -= 3
-            else:
-                prnt(p2,'fco')
-        elif p2.move == "D":
-            prnt(p2,'def')
-        elif p2.move == "C":
-            prnt(p2,'ico')
+        if p2.interrupted:
+            print "        " + p2.name + " is interrupted!"
+            p2.interrupted = False
+        else:
+            if p2.move == "A":
+                prnt(p2,'attack_damage')
+                p1.hit_points -= 1
+            elif p2.move == "D":
+                prnt(p2,'defends')
+            elif p2.move == "C":
+                prnt(p2,'combo_initiate')
+            elif p2.move == "O":
+                if p2.hit_points == 3:
+                    prnt(p2,'execute_combo')
+                    p1.hit_points -= 3
+                else:
+                    prnt(p2,'failed_combo')
         p1.interrupted = False
     
 
