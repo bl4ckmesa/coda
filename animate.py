@@ -17,6 +17,7 @@ pygame.init()
 # set up the window
 window_x = 1024
 window_y = 768
+char_y_fraction = 2.5
 windowSurface = pygame.display.set_mode((window_x, window_y), 0, 32)
 pygame.display.set_caption('Pyganim Test 1')
 
@@ -29,7 +30,8 @@ pygame.display.set_caption('Pyganim Test 1')
 #                                   ('sprites/navi_c3.png', 0.5)])
 # This one is using a single gridded image
 i = pyganim.getImagesFromSpriteSheet("sprites/full_image/navinew.png", rows = 7, cols = 7, rects = [(0,0,490,490)])
-i = [ pygame.transform.scale(x, (window_x/3, window_x/3)) for x in i ]
+# Resize images to make sense in environment.  All players should be some fraction of height of screen
+i = [ pygame.transform.scale(x, (int(window_y/char_y_fraction), int(window_x/char_y_fraction))) for x in i ]
 # Combo Swipe
 frames = list(zip(
                  [i[30],i[24],i[17], i[4],i[43],i[36],i[29],i[22],i[15], i[8],i[38],i[31],i[30]], 
@@ -57,7 +59,7 @@ while True:
             # press "L" key to stop looping
             navi_combo.loop = False
 
-    navi_combo.blit(windowSurface, (window_x/8, window_y/2))
+    navi_combo.blit(windowSurface, (window_x/8, window_y/char_y_fraction))
     #navi_combo.stop()
 
     pygame.display.update()
