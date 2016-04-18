@@ -62,4 +62,4 @@ while True:
 
     #pygame.display.update() # for just updating parts of the screen?
     pygame.display.flip() # For updating the whole screen
-    mainClock.tick(10) # Feel free to experiment with any FPS setting.
+    mainClock.tick(30) # Feel free to experiment with any FPS setting.
