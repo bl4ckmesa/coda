@@ -46,23 +46,43 @@ class Navi(DefaultPlayer):
     """ The character Navi and his moves. """
 
     def buildMoves(self):
+        # Pull in the imagesheet
         i = pyganim.getImagesFromSpriteSheet("sprites/full_image/navinew.png", rows = 7, cols = 7, rects = [(0,0,490,490)])
+        # Player 2 faces the opposite direction
         if self.player_two:
             i = [ pygame.transform.flip(x, True, False) for x in i ]
         # Resize images to make sense in environment.  All players should be some fraction of height of screen
         i = [ pygame.transform.scale(x, (int(self.window_y/self.char_y_fraction), int(self.window_x/self.char_y_fraction))) for x in i ]
 
-        # Standing
-        standing = list(zip(
-                         [i[30],i[30],i[30]], 
-                         [  100,  100, 100]))
-        self.moves["stand"] = pyganim.PygAnimation(standing)
-        
-        # Combo Swipe
-        frames = list(zip(
-                         [i[24],i[17], i[4],i[43],i[36],i[29],i[22],i[15], i[8],i[38],i[31]], 
-                         [  100,  100,  100,  100,  100,  100,  100,  100,  200,  300,  500]))
-        self.moves["combo"] = pyganim.PygAnimation(frames, loop=False)
+        move_list = {
+                'stand'                        : list(zip(
+                                                         [i[30],i[30],i[30]], 
+                                                         [  100,  100, 100])),
+                'attack_damage'                : list(zip(
+                                                         [i[24],i[17], i[4],i[43],i[36],i[29],i[22],i[15], i[8],i[38],i[31]], 
+                                                         [  100,  100,  100,  100,  100,  100,  100,  100,  200,  300,  500])),
+                'attack_defended'              : list(zip([i[30]],[100])),
+                'attack_both_damage'           : list(zip([i[30]],[100])),
+                'attack_while_comboed'         : list(zip([i[30]],[100])),
+                'defends'                      : list(zip([i[30]],[100])),
+                'defends_blocks'               : list(zip([i[30]],[100])),
+                'defends_while_comboed'        : list(zip([i[30]],[100])),
+                'combo_initiate'               : list(zip([i[30]],[100])),
+                'combo_init_and_damaged'       : list(zip([i[30]],[100])),
+                'combo_init_while_comboed'     : list(zip([i[30]],[100])),
+                'execute_combo'                : list(zip([i[30]],[100])),
+                'execute_combo_while_defended' : list(zip([i[30]],[100])),
+                'failed_combo'                 : list(zip([i[30]],[100])),
+                'failed_combo_and_damaged'     : list(zip([i[30]],[100])),
+                'failed_combo_while_comboed'   : list(zip([i[30]],[100])),
+                'KO'                           : list(zip([i[30]],[100]))
+                }
+        for k, v in move_list.iteritems():
+            if k in [ "stand" ]:
+                self.moves[k] = pyganim.PygAnimation(v)
+            else:
+                self.moves[k] = pyganim.PygAnimation(v, loop=False)
+
 
     def setCharDimensions(self):
         self.width =  70 * self.char_y_fraction

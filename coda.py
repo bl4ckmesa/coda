@@ -65,7 +65,7 @@ import sys
 import time
 
 # Describes a player
-class Player:
+class PlayerText:
     hit_points = 3
     name = "Default Player"
     coda = ""
@@ -309,8 +309,8 @@ def fight(p1, p2, log_level = "Normal"):
         return "draw"
 
 if __name__ == "__main__":
-    p1 = Player()
-    p2 = Player()
+    p1 = PlayerText()
+    p2 = PlayerText()
     p1.name = "Allen"
     p2.name = "Dad"
     argv = sys.argv

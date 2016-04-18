@@ -40,10 +40,10 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == KEYDOWN and event.key == K_l:
-            player1.action_checked = "combo"
+            player1.action_checked = "attack_damage"
             player1.action(player1.action_checked)
         if event.type == KEYDOWN and event.key == K_k:
-            player2.action_checked = "combo"
+            player2.action_checked = "attack_damage"
             player2.action(player2.action_checked)
 
     # Player action finished checks
