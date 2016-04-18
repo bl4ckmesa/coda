@@ -1,8 +1,7 @@
 import pyganim
 import pygame
 
-class Navi:
-    """ The character Navi and his moves. """
+class DefaultPlayer:
     def __init__(self,info_pack):
         # I learned I need this __init__ so that my variables don't get shared between instances of Navi
         # Even the moves I don't want shared so I can reverse the animation but not for both players
@@ -10,12 +9,13 @@ class Navi:
         self.window_x = info_pack[1]
         self.window_y = info_pack[2]
         self.char_y_fraction = info_pack[3]
-        self.width =  70 * self.char_y_fraction
-        self.height =  70 * self.char_y_fraction
+        self.width = ""
+        self.height = ""
         self.action_checked = ""
         self.player_two = False
         self.moves = {}
         self.buildMoves()
+        self.setCharDimensions()
 
     def action(self,move):
         for m in self.moves.keys():
@@ -31,6 +31,19 @@ class Navi:
             return (self.window_x/8, self.window_y/self.char_y_fraction)
         else:
             return ((self.window_x - self.window_x/4 - self.width), self.window_y/self.char_y_fraction)
+        
+    def setPlayerTwo(self):
+        self.player_two = True
+        self.buildMoves()
+
+    def buildMoves(self):
+        pass
+
+    def setCharDimensions(self):
+        pass
+
+class Navi(DefaultPlayer):
+    """ The character Navi and his moves. """
 
     def buildMoves(self):
         i = pyganim.getImagesFromSpriteSheet("sprites/full_image/navinew.png", rows = 7, cols = 7, rects = [(0,0,490,490)])
@@ -38,8 +51,6 @@ class Navi:
             i = [ pygame.transform.flip(x, True, False) for x in i ]
         # Resize images to make sense in environment.  All players should be some fraction of height of screen
         i = [ pygame.transform.scale(x, (int(self.window_y/self.char_y_fraction), int(self.window_x/self.char_y_fraction))) for x in i ]
-
-        # MOVES
 
         # Standing
         standing = list(zip(
@@ -52,8 +63,8 @@ class Navi:
                          [i[24],i[17], i[4],i[43],i[36],i[29],i[22],i[15], i[8],i[38],i[31]], 
                          [  100,  100,  100,  100,  100,  100,  100,  100,  200,  300,  500]))
         self.moves["combo"] = pyganim.PygAnimation(frames, loop=False)
-        
-    def setPlayerTwo(self):
-        self.player_two = True
-        self.buildMoves()
+
+    def setCharDimensions(self):
+        self.width =  70 * self.char_y_fraction
+        self.height =  70 * self.char_y_fraction
 
