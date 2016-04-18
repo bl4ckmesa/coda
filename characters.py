@@ -48,24 +48,24 @@ class DefaultPlayer:
     def mapKeys(self):
         if not self.player_two:
             self.keys = {
-                K_1         : 'stand',
-                K_2         : 'attack_damage',
-                K_3         : 'fight_start',
-                K_4         : 'attack_defended',
-                K_q         : 'attack_both_damage',
-                K_w         : 'attack_while_comboed',
-                K_e         : 'defends',
-                K_r         : 'defends_blocks',
-                K_a         : 'defends_while_comboed',
-                K_s         : 'combo_initiate',
-                K_d         : 'combo_init_and_damaged',
-                K_f         : 'combo_init_while_comboed',
-                K_z         : 'execute_combo',
-                K_x         : 'execute_combo_while_defended',
-                K_c         : 'failed_combo',
-                K_v         : 'failed_combo_and_damaged',
-                K_t         : 'failed_combo_while_comboed',
-                K_g         : 'interrupted',
+                K_1         : 'stand'                        ,
+                K_2         : 'attack_damage'                ,
+                K_3         : 'fight_start'                  ,
+                K_4         : 'attack_defended'              ,
+                K_q         : 'attack_both_damage'           ,
+                K_w         : 'attack_while_comboed'         ,
+                K_e         : 'defends'                      ,
+                K_r         : 'defends_blocks'               ,
+                K_a         : 'defends_while_comboed'        ,
+                K_s         : 'combo_initiate'               ,
+                K_d         : 'combo_init_and_damaged'       ,
+                K_f         : 'combo_init_while_comboed'     ,
+                K_z         : 'execute_combo'                ,
+                K_x         : 'execute_combo_while_defended' ,
+                K_c         : 'failed_combo'                 ,
+                K_v         : 'failed_combo_and_damaged'     ,
+                K_t         : 'failed_combo_while_comboed'   ,
+                K_g         : 'interrupted'                  ,
                 K_b         : 'KO'
             }
         else:
@@ -103,33 +103,37 @@ class Navi(DefaultPlayer):
         # Resize images to make sense in environment.  All players should be some fraction of height of screen
         i = [ pygame.transform.scale(x, (int(self.window_y/self.char_y_fraction), int(self.window_x/self.char_y_fraction))) for x in i ]
 
+        # This is the hard part, unfortunately.
+        # This part matches each attack to a sequence of frames and a time for each.
         move_list = {
-                'stand'                        : list(zip([i[30],i[30],i[30]], 
-                                                          [  100,  100, 100])),
-                'attack_damage'                : list(zip([i[37],i[44], i[3],i[10]], 
-                                                          [  300,  200,  200,  200])),
-                'fight_start'                  : list(zip([i[49], i[9],i[16],i[23],i[30]],
-                                                          [  200,  200,  200,  200,  200])),
-                'attack_defended'              : list(zip([i[30]],[100])),
-                'attack_both_damage'           : list(zip([i[49], i[9],i[16],i[23],i[30],i[2]],
-                                                          [  200,  200,  200,  200,  200, 300])),
-                'attack_while_comboed'         : list(zip([i[30]],[100])),
-                'defends'                      : list(zip([i[30]],[100])),
-                'defends_blocks'               : list(zip([i[30]],[100])),
-                'defends_while_comboed'        : list(zip([i[30]],[100])),
-                'combo_initiate'               : list(zip([i[30]],[100])),
-                'combo_init_and_damaged'       : list(zip([i[30]],[100])),
-                'combo_init_while_comboed'     : list(zip([i[30]],[100])),
-                'execute_combo'                : list(zip([i[24],i[17], i[4],i[43],i[36],i[29],i[22],i[15], i[8],i[38],i[31]], 
-                                                          [  100,  100,  100,  100,  100,  100,  100,  100,  200,  300,  500])),
-                'execute_combo_while_defended' : list(zip([i[30]],[100])),
-                'failed_combo'                 : list(zip([i[30]],[100])),
-                'failed_combo_and_damaged'     : list(zip([i[30]],[100])),
-                'failed_combo_while_comboed'   : list(zip([i[30]],[100])),
-                'interrupted'                  : list(zip([i[30]],[100])),
-                'KO'                           : list(zip([i[30]],[100]))
+                'stand'                        : zip([  30,  32 ], 
+                                                     [ 900, 100 ]),
+                'attack_damage'                : zip([  37,  44,   3,  10 ], 
+                                                     [ 300, 200, 200, 200 ]),
+                'fight_start'                  : zip([  49,   9,  16,  23,  30 ],
+                                                     [ 200, 200, 200, 200, 200 ]),
+                'attack_defended'              : zip([30],[100]),
+                'attack_both_damage'           : zip([  49,   9,  16,  23,  30,   2 ],
+                                                     [ 200, 200, 200, 200, 200, 300 ]),
+                'attack_while_comboed'         : zip([30],[100]),
+                'defends'                      : zip([30],[100]),
+                'defends_blocks'               : zip([30],[100]),
+                'defends_while_comboed'        : zip([30],[100]),
+                'combo_initiate'               : zip([30],[100]),
+                'combo_init_and_damaged'       : zip([30],[100]),
+                'combo_init_while_comboed'     : zip([30],[100]),
+                'execute_combo'                : zip([  24,  17,   4,  43,  36,  29,  22,  15,   8,  38,  31 ], 
+                                                     [ 100, 100, 100, 100, 100, 100, 100, 100, 200, 300, 500 ]),
+                'execute_combo_while_defended' : zip([30],[100]),
+                'failed_combo'                 : zip([30],[100]),
+                'failed_combo_and_damaged'     : zip([30],[100]),
+                'failed_combo_while_comboed'   : zip([30],[100]),
+                'interrupted'                  : zip([30],[100]),
+                'KO'                           : zip([30],[100])
                 }
         for k, v in move_list.iteritems():
+            # Here I take that first row and actually make them the image objects
+            v = [(i[t[0]],t[1]) for t in list(v)] #wol
             if k in [ "stand" ]:
                 self.moves[k] = pyganim.PygAnimation(v)
             else:
