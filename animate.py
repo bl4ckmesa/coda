@@ -44,9 +44,11 @@ while True:
         if event.type == KEYDOWN and event.key in player1.keys.keys():
             player1.action_checked = player1.keys[event.key]
             player1.action(player1.action_checked)
+            print "Player1, action:", player1.action_checked
         if event.type == KEYDOWN and event.key in player2.keys.keys():
             player2.action_checked = player2.keys[event.key]
             player2.action(player2.action_checked)
+            print "Player2, action:", player2.action_checked
 
     # Player action finished checks
     if player1.action_checked and player1.moves[player1.action_checked].isFinished():

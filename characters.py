@@ -106,37 +106,49 @@ class Navi(DefaultPlayer):
         # This is the hard part, unfortunately.
         # This part matches each attack to a sequence of frames and a time for each.
         move_list = {
+                'fight_start'                  : zip([  49,   9,  16,  23,  30 ],
+                                                     [ 200, 200, 200, 200, 200 ]),
                 'stand'                        : zip([  30,  32 ], 
                                                      [ 900, 100 ]),
                 'attack_damage'                : zip([  37,  44,   3,  10 ], 
                                                      [ 300, 200, 200, 200 ]),
-                'fight_start'                  : zip([  49,   9,  16,  23,  30 ],
-                                                     [ 200, 200, 200, 200, 200 ]),
-                'attack_defended'              : zip([30],[100]),
-                'attack_both_damage'           : zip([  49,   9,  16,  23,  30,   2 ],
-                                                     [ 200, 200, 200, 200, 200, 300 ]),
+                'attack_defended'              : zip([  37,  44,   3,  10,   2 ], 
+                                                     [ 300, 200, 200, 700, 200 ]),
+                'attack_both_damage'           : zip([  37,  44,   3,  10,  23 ], 
+                                                     [ 300, 200, 200, 600, 300 ]),
                 'attack_while_comboed'         : zip([  49,   9,  16,  23,  30,   2 ],
                                                      [ 200, 200, 200, 200, 200, 300 ]),
-                'defends'                      : zip([  24,  45,   4, 12, 19, 12, 19, 12, 19, 12, 19, 12, 19, 12,  12 ],
-                                                     [  50,  50, 100, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 900 ]),
-                'defends_blocks'               : zip([30],[100]),
-                'defends_while_comboed'        : zip([30],[100]),
-                'combo_initiate'               : zip([30],[100]),
-                'combo_init_and_damaged'       : zip([30],[100]),
-                'combo_init_while_comboed'     : zip([30],[100]),
-                'execute_combo'                : zip([  24,  17,   4,  43,  36,  29,  22,  15,   8,  38,  31 ], 
-                                                     [ 100, 100, 100, 100, 100, 100, 100, 100, 200, 300, 500 ]),
-                'execute_combo_while_defended' : zip([30],[100]),
-                'failed_combo'                 : zip([30],[100]),
-                'failed_combo_and_damaged'     : zip([30],[100]),
-                'failed_combo_while_comboed'   : zip([30],[100]),
-                'interrupted'                  : zip([30],[100]),
-                'KO'                           : zip([30],[100])
+                'defends'                      : zip([  24, 45,  4,  5, 12, 19, 12, 19, 12, 19, 12, 19, 12,  5,  4  ],
+                                                     [  75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75  ]),
+                'defends_blocks'               : zip([  24, 45,  4,  5, 12, 19, 12, 19, 12, 19, 12, 19, 12,  5,  4  ],
+                                                     [  75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75  ]),
+                'defends_while_comboed'        : zip([  24, 45,  4,  5, 12, 19, 12, 19, 12, 19, 12, 19,   2 ],
+                                                     [  75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 250 ]),
+                'combo_initiate'               : zip([   31,  38,  45,   4 ],
+                                                     [  200, 200, 200, 900 ]),
+                'combo_init_and_damaged'       : zip([   31,  38,  45,   4,   2 ],
+                                                     [  200, 200, 200, 500, 500 ]),
+                'combo_init_while_comboed'     : zip([   31,  38,  45,   4,   2 ],
+                                                     [  200, 200, 200, 500, 500 ]),
+                'execute_combo'                : zip([   4,   5,  43,  36,  29,  22,  15,   8,  38,  31 ], 
+                                                     [  75,  75,  75,  75,  75,  75,  75, 200, 300, 500 ]),
+                'execute_combo_while_defended' : zip([   4,   5,  43,  36,  29,  22,  15,   8,  38,  31,   2 ], 
+                                                     [  75,  75,  75,  75,  75,  75,  75, 200, 200, 100, 500 ]),
+                'failed_combo'                 : zip([   4,   5,   4,   5,   4,  17,   4,  17,  30,  23 ], 
+                                                     [  75,  75,  75,  75,  75,  75,  75, 200, 300, 100 ]),
+                'failed_combo_and_damaged'     : zip([   4,   5,   4,   5,   4,  17,   4,  17,  30,  23,   2 ], 
+                                                     [  75,  75,  75,  75,  75,  75,  75, 200, 300, 100, 500 ]),
+                'failed_combo_while_comboed'   : zip([   4,   5,   4,   5,   4,  17,   4,  17,  30,  23,   2 ], 
+                                                     [  75,  75,  75,  75,  75,  75,  75, 200, 300, 100, 500 ]),
+                'interrupted'                  : zip([  30,  23 ],
+                                                     [ 100, 100 ]),
+                'KO'                           : zip([  30,  23,  16,   9,  49,   9,  49 ],
+                                                     [ 200, 200, 200, 200, 200, 200, 200 ])
                 }
         for k, v in move_list.iteritems():
             # Here I take that first row and actually make them the image objects
             v = [(i[t[0]],t[1]) for t in list(v)] #wol
-            if k in [ "stand" ]:
+            if k in [ "stand", "interrupted" ]:
                 self.moves[k] = pyganim.PygAnimation(v)
             else:
                 self.moves[k] = pyganim.PygAnimation(v, loop=False)
