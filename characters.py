@@ -145,6 +145,9 @@ class Navi(DefaultPlayer):
                 'KO'                           : zip([  30,  23,  16,   9,  49,   9,  49 ],
                                                      [ 200, 200, 200, 200, 200, 200, 200 ])
                 }
+
+        #move_list['interrupted'] = zip([  26,  33,  40,  47,  48 ], 
+        #                               [ 500, 500, 500, 500, 500 ])
         for k, v in move_list.iteritems():
             # Here I take that first row and actually make them the image objects
             v = [(i[t[0]],t[1]) for t in list(v)] #wol
