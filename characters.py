@@ -15,6 +15,9 @@ class DefaultPlayer:
         self.action_checked = ""
         self.player_two = False
         self.moves = {}
+        self.locOffset = 0
+        self.projectiles = {}
+
         self.buildMoves()
         self.setCharDimensions()
         self.mapKeys()
@@ -24,15 +27,24 @@ class DefaultPlayer:
             self.moves[m].stop()
         self.moves[move].play()
 
+    def fire(self,p):
+        for allp in self.projectiles.keys():
+            self.projectiles[allp]['anim'].stop()
+        if p is not "stop":
+            print "Fire projectile"
+            self.projectiles[p]['anim'].play()
+        else:
+            print "Stop projectile"
+
     def blit(self,windowSurface, loc):
         for m in self.moves.keys():
             self.moves[m].blit(self.windowSurface, loc)
 
     def location(self):
         if self.player_two == False:
-            return (self.window_x/8, self.window_y/self.char_y_fraction)
+            return (self.window_x/8 + self.locOffset, self.window_y/self.char_y_fraction)
         else:
-            return ((self.window_x - self.window_x/4 - self.width), self.window_y/self.char_y_fraction)
+            return ((self.window_x - self.window_x/4 - self.width) - self.locOffset, self.window_y/self.char_y_fraction)
         
     def setPlayerTwo(self):
         self.player_two = True
@@ -97,9 +109,14 @@ class Navi(DefaultPlayer):
     def buildMoves(self):
         # Pull in the imagesheet
         i = pyganim.getImagesFromSpriteSheet("sprites/full_image/navinew.png", rows = 7, cols = 7, rects = [(0,0,490,490)])
-        # Player 2 faces the opposite direction
         if self.player_two:
+            # Player 2 faces the opposite direction
             i = [ pygame.transform.flip(x, True, False) for x in i ]
+            # Pique Player 2's color
+            for x in i:
+                #x.fill((0, 0, 0, 100), None, pygame.BLEND_RGBA_MULT) # Blanks out all values (looks like a shadow)
+                x.fill((00,0,60) + (0,), None, pygame.BLEND_RGBA_ADD) # Blends that color into image
+
         # Resize images to make sense in environment.  All players should be some fraction of height of screen
         i = [ pygame.transform.scale(x, (int(self.window_y/self.char_y_fraction), int(self.window_x/self.char_y_fraction))) for x in i ]
 
@@ -145,9 +162,6 @@ class Navi(DefaultPlayer):
                 'KO'                           : zip([  30,  23,  16,   9,  49,   9,  49 ],
                                                      [ 200, 200, 200, 200, 200, 200, 200 ])
                 }
-
-        #move_list['interrupted'] = zip([  26,  33,  40,  47,  48 ], 
-        #                               [ 500, 500, 500, 500, 500 ])
         for k, v in move_list.iteritems():
             # Here I take that first row and actually make them the image objects
             v = [(i[t[0]],t[1]) for t in list(v)] #wol
@@ -156,6 +170,24 @@ class Navi(DefaultPlayer):
             else:
                 self.moves[k] = pyganim.PygAnimation(v, loop=False)
 
+        self.projectiles = {
+            'p2' : {
+                 'anim' : zip([  26,  33,  40,  47,  48 ],
+                              [ 200, 200, 200, 200, 200 ]),
+                 'velocity' : 1
+                 },
+            'p1' : {
+                 'anim' : zip([   31,  38,  45,   4 ],
+                              [  200, 200, 200, 900 ]),
+                 'velocity' : 1
+                 }
+            }
+        for k, v in self.projectiles.iteritems():
+            v['anim'] = [(i[t[0]],t[1]) for t in list(v['anim'])]
+            self.projectiles[k]['anim'] = pyganim.PygAnimation(v['anim'])
+
+    def updateProjLoc(self,p = 'p1'):
+        self.locOffset += self.projectiles[p]['velocity']
 
     def setCharDimensions(self):
         self.width =  70 * self.char_y_fraction

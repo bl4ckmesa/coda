@@ -13,6 +13,7 @@ char_y_fraction = 2.5 # Character height per the screen
 windowSurface = pygame.display.set_mode((window_x, window_y), 0, 32)
 pygame.display.set_caption('Combo Defends Attack!')
 info_pack = [ windowSurface, window_x, window_y, char_y_fraction ]
+projectile = False
 
 
 # ANIMATION Setup
@@ -20,6 +21,7 @@ info_pack = [ windowSurface, window_x, window_y, char_y_fraction ]
 player1 = Navi(info_pack)
 player1.action("fight_start")
 player1.action_checked="fight_start"
+p1proj = Navi(info_pack)
 
 player2 = Navi(info_pack)
 player2.setPlayerTwo()
@@ -41,6 +43,13 @@ while True:
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             pygame.quit()
             sys.exit()
+        if event.type == KEYDOWN and event.key == K_6:
+            projectile = True
+            p1proj.fire('p1')
+        if event.type == KEYDOWN and event.key == K_5:
+            projectile = False
+            p1proj.fire('stop')
+            p1proj.locOffset = 0
         if event.type == KEYDOWN and event.key in player1.keys.keys():
             player1.action_checked = player1.keys[event.key]
             player1.action(player1.action_checked)
@@ -61,6 +70,12 @@ while True:
     # Push out animations for each object
     player1.blit(windowSurface, player1.location())
     player2.blit(windowSurface, player2.location())
+
+    # Push out animations for each projectile
+    if projectile:
+        p1proj.updateProjLoc()
+    #p1proj.blit(windowSurface,(p1proj.location()[0]+60,p1proj.location()[1]))
+    p1proj.blit(windowSurface,p1proj.location())
 
     #pygame.display.update() # for just updating parts of the screen?
     pygame.display.flip() # For updating the whole screen
