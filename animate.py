@@ -22,6 +22,7 @@ player1 = Navi(info_pack)
 player1.action("fight_start")
 player1.action_checked="fight_start"
 p1proj = Navi(info_pack)
+p1proj.buildMoves()
 
 player2 = Navi(info_pack)
 player2.setPlayerTwo()
@@ -46,6 +47,7 @@ while True:
         if event.type == KEYDOWN and event.key == K_6:
             projectile = True
             p1proj.fire('p1')
+            #p1proj.action('fight_start')
         if event.type == KEYDOWN and event.key == K_5:
             projectile = False
             p1proj.fire('stop')
