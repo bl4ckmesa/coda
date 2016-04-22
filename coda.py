@@ -70,6 +70,7 @@ class PlayerText:
     name = "Default Player"
     coda = ""
     move = ""
+    current_action = ""
     interrupted = False
     actions = {
                 'A' : { 
@@ -113,6 +114,162 @@ def random_coda():
 
 def prnt(p,t, log_level = "Normal"):
     log("        " + p.name + p.actions[p.move][t], log_level)
+
+def roundResult(p1, p2, rnd):
+    if not p1.interrupted:
+        if p2.interrupted:
+            p2.current_action = "interrupted"
+            if p1.move == "A":
+                p1.current_action = 'attack_damage'
+                p2.hit_points -= 1
+            elif p1.move == "D":
+                p1.current_action = "defends"
+            elif p1.move == "C":
+                p1.current_action = 'combo_initiate'
+            elif p1.move == "O":
+                if p1.hit_points >= 3:
+                    p1.current_action = 'execute_combo'
+                    p2.hit_points -= 3
+                else:
+                    p1.current_action = 'failed_combo'
+            p2.interrupted = False
+        else:
+            if p1.move == "A":
+                if p2.move  == "A":
+                    p1.current_action = 'attack_both_damage'
+                    p2.current_action = 'attack_both_damage'
+                    p1.hit_points -= 1
+                    p2.hit_points -= 1
+                elif p2.move == "D":
+                    p1.current_action = 'attack_defended'
+                    p2.current_action = 'defends_blocks'
+                    p1.interrupted = True
+                elif p2.move == "C":
+                    p1.current_action = 'attack_damage'
+                    p2.current_action = 'combo_init_and_damaged'
+                    p2.hit_points -= 1
+                elif p2.move == "O":
+                    if p2.hit_points >= 3:
+                        p1.current_action = 'attack_while_comboed'
+                        p2.current_action = 'execute_combo'
+                        p1.hit_points -= 3
+                        p2.hit_points -= 1
+                    else:
+                        p1.current_action = 'attack_damage'
+                        p2.current_action = 'failed_combo_and_damaged'
+                        p2.hit_points -= 1
+            elif p1.move == "D":
+                if p2.move == "A":
+                    p1.current_action = 'defends_blocks'
+                    p2.current_action = 'attack_defended'
+                    p2.interrupted = True
+                elif p2.move  == "D":
+                    p1.current_action = 'defends'
+                    p2.current_action = 'defends'
+                elif p2.move == "C":
+                    p1.current_action = 'defends'
+                    p2.current_action = 'combo_initiate'
+                elif p2.move == "O":
+                    if p2.hit_points >= 3:
+                        p1.current_action = 'defends_while_comboed'
+                        p2.current_action = 'execute_combo_while_defended'
+                        p1.hit_points -= 2
+                    else:
+                        p1.current_action = 'defends'
+                        p2.current_action = 'failed_combo'
+            elif p1.move == "C":
+                if p2.move == "A":
+                    p1.current_action = 'combo_init_and_damaged'
+                    p2.current_action = 'attack_damage'
+                    p1.hit_points -= 1
+                elif p2.move == "D":
+                    p1.current_action = 'combo_initiate'
+                    p2.current_action = 'defends'
+                elif p2.move == "C":
+                    p1.current_action = 'combo_initiate'
+                    p2.current_action = 'combo_initiate'
+                elif p2.move == "O":
+                    if p2.hit_points >= 3:
+                        p1.current_action = 'combo_init_while_comboed'
+                        p2.current_action = 'execute_combo'
+                        p1.hit_points -= 3
+                    else:
+                        p1.current_action = 'combo_initiate'
+                        p2.current_action = 'failed_combo'
+            elif p1.move == "O":
+                if p1.hit_points == 3:
+                    if not p2.interrupted:
+                        if p2.move == "A":
+                            p1.current_action = 'execute_combo'
+                            p2.current_action = 'attack_while_comboed'
+                            p2.hit_points -= 3
+                            p1.hit_points -= 1
+                        elif p2.move == "D":
+                            p1.current_action = 'execute_combo_while_defended'
+                            p2.current_action = 'defends_while_comboed'
+                            p2.hit_points -= 2
+                        elif p2.move == "C":
+                            p1.current_action = 'execute_combo'
+                            p2.current_action = 'combo_init_while_comboed'
+                            p2.hit_points -= 3
+                        elif p2.move == "O":
+                            if p1.hit_points >= 3 and p2.hit_points >= 3:
+                                p1.current_action = 'execute_combo'
+                                p2.current_action = 'execute_combo'
+                                p2.hit_points -= 3
+                                p1.hit_points -= 3
+                            elif p1.hit_points >= 3 and p2.hit_points < 3:
+                                p1.current_action = 'execute_combo'
+                                p2.current_action = 'failed_combo_while_comboed'
+                                p2.hit_points -= 3
+                            elif p1.hit_points < 3 and p2.hit_points >= 3:
+                                p1.current_action = 'failed_combo_while_comboed'
+                                p2.current_action = 'execute_combo'
+                                p1.hit_points -= 3
+                    else:
+                        p2.current_action = "interrupted"
+                        p1.current_action = 'execute_combo'
+                        p2.hit_points -= 3
+                        p2.interrupted = False
+                else:
+                    if not p2.interrupted:
+                        if p2.move == "A":
+                            p1.current_action = 'failed_combo_and_damaged'
+                            p1.hit_points -= 1
+                        elif p2.move == "D":
+                            p1.current_action = 'failed_combo'
+                            p2.current_action = 'defends'
+                        elif p2.move == "C":
+                            p1.current_action = 'failed_combo'
+                            p2.current_action = 'combo_initiate'
+                        elif p2.move == "O":
+                            if p2.hit_points >= 3:
+                                p1.current_action = 'failed_combo_while_comboed'
+                                p2.current_action = 'execute_combo'
+                                p1.hit_points -= 3
+                            else:
+                                p1.current_action = 'failed_combo'
+                                p2.current_action = 'failed_combo'
+    else:
+        p1.current_action = "interrupted"
+        if p2.interrupted:
+            p2.current_action = "interrupted"
+            p2.interrupted = False
+        else:
+            if p2.move == "A":
+                p2.current_action = 'attack_damage'
+                p1.hit_points -= 1
+            elif p2.move == "D":
+                p2.current_action = 'defends'
+            elif p2.move == "C":
+                p2.current_action = 'combo_initiate'
+            elif p2.move == "O":
+                if p2.hit_points == 3:
+                    p2.current_action = 'execute_combo'
+                    p1.hit_points -= 3
+                else:
+                    p2.current_action = 'failed_combo'
+        p1.interrupted = False
 
 def conflict(p1, p2, log_level = "Normal"):
     if not p1.interrupted:
@@ -291,6 +448,35 @@ def fight(p1, p2, log_level = "Normal"):
         p1.move = p1.coda[r]
         p2.move = p2.coda[r]
         conflict(p1,p2, log_level)
+        if p1.hit_points <= 0 or p2.hit_points <= 0:
+            break
+    log("\nAll rounds are over. (P1: %d), (P2: %d)" % (p1.hit_points, p2.hit_points), log_level)
+    if p1.hit_points <= 0:
+        log(p1.name + ", " + p1.actions['KO'], log_level)
+    if p2.hit_points <= 0:
+        log(p2.name + ", " + p2.actions['KO'], log_level)
+    if p2.hit_points > 0 and p1.hit_points == 0:
+        log(p2.name + " wins!", log_level)
+        return "lose"
+    elif p1.hit_points > 0 and p2.hit_points == 0:
+        log(p1.name + " wins!", log_level)
+        return "win"
+    else:
+        log("Game ended in a draw.", log_level)
+        return "draw"
+
+def animateFight(p1,p2, log_level = "Normal"):
+    # Reset hit points
+    p1.hit_points = 3
+    p2.hit_points = 3
+    log(" <<< " + p1.name + ": " + p1.coda + " | " + p2.name + ": " + p2.coda + " >>> \n", log_level)
+    rounds = [0,1,2,3,4]
+    for r in rounds:
+        log("    -- Round %d --" % (r + 1), log_level)
+        p1.move = p1.coda[r]
+        p2.move = p2.coda[r]
+        conflict(p1,p2, log_level)
+        print "Current moves: p1:", p1.current_action, ", p2:", p2.current_action
         if p1.hit_points <= 0 or p2.hit_points <= 0:
             break
     log("\nAll rounds are over. (P1: %d), (P2: %d)" % (p1.hit_points, p2.hit_points), log_level)

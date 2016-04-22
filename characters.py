@@ -168,7 +168,7 @@ class Navi(DefaultPlayer):
         for k, v in move_list.iteritems():
             # Here I take that first row and actually make them the image objects
             v = [(i[t[0]],t[1]) for t in list(v)] #wol
-            if k in [ "stand", "interrupted" ]:
+            if k in [ "stand", "interrupted", "KO" ]:
                 self.moves[k] = pyganim.PygAnimation(v)
             else:
                 self.moves[k] = pyganim.PygAnimation(v, loop=False)
