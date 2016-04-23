@@ -18,14 +18,8 @@ pygame.display.set_caption('Combo Defends Attack!')
 info_pack = [ windowSurface, window_x, window_y, char_y_fraction ]
 projectile = False
 mainClock = pygame.time.Clock()
-# Keeps track of what round we're on.  5 total.
-rnd = [ 0, [ "C", "O", "D", "A", "A" ], [ "A", "D", "A", "D", "A" ] ]
+rnd = 0
 
-
-
-# Pick your character type here
-p1 = Navi
-p2 = Navi
 
 def playerSetup(p1,p2):
     global player1
@@ -46,28 +40,37 @@ def playerSetup(p1,p2):
     p2proj.setPlayerTwo()
     p2proj.buildMoves()
 
+# Pick your character type here
+p1 = Navi
+p2 = Navi
 playerSetup(p1,p2)
 
-# Reset hit points
-p1text = PlayerText()
-p2text = PlayerText()
-argv = sys.argv
-if len(argv) == 2:
-    p1text.coda = argv[1]
-    p2text.coda = random_coda()
-elif len(argv) == 3:
-    p1text.coda = argv[1]
-    p2text.coda = argv[2]
-else:
-    p1text.coda = random_coda()
-    p2text.coda = random_coda()
-p1text.hit_points = 3
-p2text.hit_points = 3
-p1text.name = "Allen"
-p2text.name = "Dad"
-log_level = "Normal"
-log(" <<< " + p1text.name + ": " + p1text.coda + " | " + p2text.name + ": " + p2text.coda + " >>> \n", log_level)
+def reset_round():
+    # Reset hit points
+    global p1text
+    global p2text
+    p1text = PlayerText()
+    p2text = PlayerText()
+    argv = sys.argv
+    if len(argv) == 2:
+        p1text.coda = argv[1]
+        p2text.coda = random_coda()
+    elif len(argv) == 3:
+        p1text.coda = argv[1]
+        p2text.coda = argv[2]
+    else:
+        p1text.coda = random_coda()
+        p2text.coda = random_coda()
+    p1text.hit_points = 3
+    p2text.hit_points = 3
+    p1text.name = "Allen"
+    p2text.name = "Dad"
+    global log_level
+    log_level = "Normal"
+    log(" <<< " + p1text.name + ": " + p1text.coda + " | " + p2text.name + ": " + p2text.coda + " >>> \n", log_level)
 
+reset_round()
+    
 # ANIMATION Setup
 #bg = pygame.image.load("sprites/fight_scene2.jpg").convert()
 bg = pygame.image.load("sprites/fight_scene2.jpg")
@@ -78,7 +81,7 @@ while True:
     windowSurface.blit(bg, [0,0])
 
     if DEBUG:
-        # Keycodes (for testing right now)
+        # Debug mode doesn't run the game; it just maps a bunch of keys to player actions for testing the animations.
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
@@ -117,6 +120,54 @@ while True:
         p1proj.blit(windowSurface,p1proj.location())
 
     else:
+        # Go back to standing
+        p1a = player1.moves[player1.action_checked]
+        p2a = player2.moves[player2.action_checked]
+        if player1.action_checked and p1a.isFinished():
+            player1.action_checked = "stand"
+            player1.action(player1.action_checked)
+        if player2.action_checked and p2a.isFinished():
+            player2.action_checked = "stand"
+            player2.action(player2.action_checked)
+
+        # Time to go to the next round (animations are finished and manual 'm' is pressed)
+        if player1.action_checked and (p1a.isFinished() or p1a.loop == True) and player2.action_checked and (p2a.isFinished() or p2a.loop == True) and manual:
+            if p1text.hit_points > 0 and p2text.hit_points > 0 and rnd <= 4:
+                log("    -- Round %d --" % (rnd + 1), log_level)
+                p1text.move = p1text.coda[rnd]
+                p2text.move = p2text.coda[rnd]
+                roundResult(p1text,p2text, log_level)
+                # Set animations of players on screen
+                print "Current moves: p1text:", p1text.current_action, ", p2text:", p2text.current_action
+                player1.action_checked = p1text.current_action
+                player1.action(player1.action_checked)
+                player2.action_checked = p2text.current_action
+                player2.action(player2.action_checked)
+                rnd += 1
+                if p1text.hit_points <= 0 or p2text.hit_points <= 0 or rnd > 4:
+                    continue
+            if p1text.hit_points <= 0 or p2text.hit_points <= 0 or rnd > 4:
+                log("\nAll rounds are over. (P1: %d), (P2: %d)" % (p1text.hit_points, p2text.hit_points), log_level)
+                if p1text.hit_points <= 0:
+                    log(p1text.name + ", " + p1text.actions['KO'], log_level)
+                    player1.action_checked = "KO"
+                    player1.action(player1.action_checked)
+                if p2text.hit_points <= 0:
+                    log(p2text.name + ", " + p2text.actions['KO'], log_level)
+                    player2.action_checked = "KO"
+                    player2.action(player2.action_checked)
+                if p2text.hit_points > 0 and p1text.hit_points <= 0:
+                    log(p2text.name + " wins!", log_level)
+                    player2.action_checked = "defends"
+                    player2.action(player2.action_checked)
+                elif p1text.hit_points > 0 and p2text.hit_points <= 0:
+                    log(p1text.name + " wins!", log_level)
+                    player1.action_checked = "defends"
+                    player1.action(player1.action_checked)
+                else:
+                    log("Game ended in a draw.", log_level)
+                #reset_round() # Doesn't quite work anyway ;)
+                manual = False
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
@@ -126,50 +177,6 @@ while True:
         for obj in (player1, p1proj, player2, p2proj):
             obj.blit(windowSurface,obj.location())
 
-    # Go back to standing
-    p1a = player1.moves[player1.action_checked]
-    p2a = player2.moves[player2.action_checked]
-    if player1.action_checked and p1a.isFinished():
-        player1.action_checked = "stand"
-        player1.action(player1.action_checked)
-    if player2.action_checked and p2a.isFinished():
-        player2.action_checked = "stand"
-        player2.action(player2.action_checked)
-
-    # Time to go to the next round
-    if player1.action_checked and (p1a.isFinished() or p1a.loop == True) and player2.action_checked and (p2a.isFinished() or p2a.loop == True) and manual:
-        manual = False
-        log("    -- Round %d --" % (rnd[0]), log_level)
-        p1text.move = p1text.coda[rnd[0]]
-        p2text.move = p2text.coda[rnd[0]]
-        roundResult(p1text,p2text, log_level)
-        # Move the players on the screen
-        print "Current moves: p1text:", p1text.current_action, ", p2text:", p2text.current_action
-        player1.action_checked = p1text.current_action
-        player1.action(player1.action_checked)
-        player2.action_checked = p2text.current_action
-        player2.action(player2.action_checked)
-        if p1text.hit_points <= 0 or p2text.hit_points <= 0:
-            log("\nAll rounds are over. (P1: %d), (P2: %d)" % (p1text.hit_points, p2text.hit_points), log_level)
-            if p1text.hit_points <= 0:
-                log(p1text.name + ", " + p1text.actions['KO'], log_level)
-                player1.action_checked = "KO"
-                player1.action(player1.action_checked)
-            if p2text.hit_points <= 0:
-                log(p2text.name + ", " + p2text.actions['KO'], log_level)
-                player2.action_checked = "KO"
-                player2.action(player2.action_checked)
-            if p2text.hit_points > 0 and p1text.hit_points <= 0:
-                log(p2text.name + " wins!", log_level)
-                player2.action_checked = "defends"
-                player2.action(player2.action_checked)
-            elif p1text.hit_points > 0 and p2text.hit_points <= 0:
-                log(p1text.name + " wins!", log_level)
-                player1.action_checked = "defends"
-                player1.action(player1.action_checked)
-            else:
-                log("Game ended in a draw.", log_level)
-        rnd[0] += 1
         
     #pygame.display.update() # for just updating parts of the screen?
     pygame.display.flip() # For updating the whole screen
