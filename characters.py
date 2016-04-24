@@ -2,6 +2,34 @@ import pyganim
 import pygame
 from pygame.locals import *
 
+class Background():
+    def __init__(self,info_pack,sprite = "sprites/background_default.png"):
+        self.windowSurface = info_pack[0]
+        self.window_x = info_pack[1]
+        self.window_y = info_pack[2]
+        self.bg = {}
+        self.buildBG(sprite)
+        self.draw()
+
+    def buildBG(self,sprite):
+        i = pyganim.getImagesFromSpriteSheet(
+                                             sprite,
+                                             rows = 10, 
+                                             cols = 10, 
+                                             rects = [(0,0,3200,2400)]
+                                             )
+        i = [ pygame.transform.scale(x, (self.window_x, self.window_y)) for x in i ]
+        bg_index = zip([    1,    2,    3,    4,    5,    6,    7,    8,    9,   10 ], 
+                       [  100,  100,  100,  100,  100,  100,  100,  100,  100,  100 ])
+        bg_anim = [(i[t[0]],t[1]) for t in list(bg_index)]
+        self.bg = pyganim.PygAnimation(bg_anim)
+
+    def blit(self, windowSurface, loc = [0,0]):
+        self.bg.blit(windowSurface, loc)
+
+    def draw(self):
+        self.bg.play()
+
 class DefaultPlayer:
     def __init__(self,info_pack):
         # I learned I need this __init__ so that my variables don't get shared between instances of Navi
@@ -130,39 +158,39 @@ class Navi(DefaultPlayer):
             'stand'                        : zip([  30,  32 ], 
                                                  [ 900, 100 ]),
             'attack_damage'                : zip([  37,  44,   3,  10 ], 
-                                                 [ 300, 200, 200, 200 ]),
+                                                 [ 300, 200, 200, 300 ]),
             'attack_defended'              : zip([  37,  44,   3,  10,   2 ], 
-                                                 [ 300, 200, 200, 700, 200 ]),
+                                                 [ 300, 200, 200, 600, 200 ]),
             'attack_both_damage'           : zip([  37,  44,   3,  10,  23 ], 
-                                                 [ 300, 200, 200, 600, 300 ]),
+                                                 [ 200, 100, 100, 400, 200 ]),
             'attack_while_comboed'         : zip([  49,   9,  16,  23,  30,   2 ],
                                                  [ 200, 200, 200, 200, 200, 300 ]),
             'defends'                      : zip([  24, 45,  4,  5, 12, 19, 12, 19, 12, 19, 12, 19, 12,  5,  4  ],
-                                                 [  75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75  ]),
+                                                 [  76, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66  ]),
             'defends_blocks'               : zip([  24, 45,  4,  5, 12, 19, 12, 19, 12, 19, 12, 19, 12,  5,  4  ],
-                                                 [  75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75  ]),
+                                                 [  76, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66  ]),
             'defends_while_comboed'        : zip([  24, 45,  4,  5, 12, 19, 12, 19, 12, 19, 12, 19,   2 ],
-                                                 [  75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 250 ]),
+                                                 [  75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100 ]),
             'combo_initiate'               : zip([   31,  38,  45,   4 ],
-                                                 [  200, 200, 200, 900 ]),
+                                                 [  200, 200, 200, 400 ]),
             'combo_init_and_damaged'       : zip([   31,  38,  45,   4,   2 ],
-                                                 [  200, 200, 200, 500, 500 ]),
+                                                 [  200, 200, 200, 200, 200 ]),
             'combo_init_while_comboed'     : zip([   31,  38,  45,   4,   2 ],
-                                                 [  200, 200, 200, 500, 500 ]),
-            'execute_combo'                : zip([   4,   5,  43,  36,  29,  22,  15,   8,  38,  31 ], 
-                                                 [  75,  75,  75,  75,  75,  75,  75, 200, 300, 500 ]),
+                                                 [  200, 200, 200, 200, 200 ]),
+            'execute_combo'                : zip([   4,   5,  43,  36,  29,  22,   15,   8,  38,  31 ], 
+                                                 [  75,  75,  75,  75,  75,  75,  100, 100, 100, 100 ]),
             'execute_combo_while_defended' : zip([   4,   5,  43,  36,  29,  22,  15,   8,  38,  31,   2 ], 
-                                                 [  75,  75,  75,  75,  75,  75,  75, 200, 200, 100, 500 ]),
+                                                 [  75,  75,  75,  75,  75,  75,  75, 125, 100, 100, 100 ]),
             'failed_combo'                 : zip([   4,   5,   4,   5,   4,  17,   4,  17,  30,  23 ], 
-                                                 [  75,  75,  75,  75,  75,  75,  75, 200, 300, 100 ]),
+                                                 [  50,  50,  50,  50,  50,  50, 100, 200, 300, 100 ]),
             'failed_combo_and_damaged'     : zip([   4,   5,   4,   5,   4,  17,   4,  17,  30,  23,   2 ], 
-                                                 [  75,  75,  75,  75,  75,  75,  75, 200, 300, 100, 500 ]),
+                                                 [  50,  50,  50,  50,  50,  50, 100, 100, 200, 100, 200 ]),
             'failed_combo_while_comboed'   : zip([   4,   5,   4,   5,   4,  17,   4,  17,  30,  23,   2 ], 
-                                                 [  75,  75,  75,  75,  75,  75,  75, 200, 300, 100, 500 ]),
+                                                 [  50,  50,  50,  50,  50,  50, 100, 100, 200, 100, 200 ]),
             'interrupted'                  : zip([  30,  23 ],
                                                  [ 100, 100 ]),
             'KO'                           : zip([  30,  23,  16,   9,  49,   9,  49 ],
-                                                 [ 200, 200, 200, 200, 200, 200, 200 ])
+                                                 [ 200, 200, 200, 200, 200, 100, 100 ])
             }
 
         for k, v in move_list.iteritems():

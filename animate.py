@@ -73,13 +73,11 @@ reset_round()
     
 # ANIMATION Setup
 #bg = pygame.image.load("sprites/fight_scene2.jpg").convert()
-bg = pygame.image.load("sprites/fight_scene2.jpg")
-bg = pygame.transform.scale(bg, (window_x,window_y))
+bg = Background(info_pack, sprite = "sprites/background_sf.png")
 
 while True:
-    windowSurface.fill([50, 50, 50])
-    windowSurface.blit(bg, [0,0])
-
+    windowSurface.fill([50, 50, 50]) # Get a fresh frame every time
+    bg.blit(windowSurface)
     if DEBUG:
         # Debug mode doesn't run the game; it just maps a bunch of keys to player actions for testing the animations.
         for event in pygame.event.get():
