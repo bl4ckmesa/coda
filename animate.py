@@ -8,6 +8,7 @@ from coda import *
 
 # Set up the window
 DEBUG = False
+#DEBUG = True
 manual = False
 pygame.init()
 window_x = 1024
