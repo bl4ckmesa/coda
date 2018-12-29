@@ -7,8 +7,8 @@ from characters import *
 from coda import *
 
 # Set up the window
-DEBUG = False
-#DEBUG = True
+#DEBUG = False
+DEBUG = True
 manual = False
 pygame.init()
 window_x = 1024
@@ -50,6 +50,10 @@ def reset_round():
     # Reset hit points
     global p1text
     global p2text
+    player1.action("fight_start")
+    player1.action_checked="fight_start"
+    player2.action("fight_start")
+    player2.action_checked="fight_start"
     p1text = PlayerText()
     p2text = PlayerText()
     argv = sys.argv
@@ -132,6 +136,7 @@ while True:
 
         # Time to go to the next round (animations are finished and manual 'm' is pressed)
         if player1.action_checked and (p1a.isFinished() or p1a.loop == True) and player2.action_checked and (p2a.isFinished() or p2a.loop == True) and manual:
+            manual = False
             if p1text.hit_points > 0 and p2text.hit_points > 0 and rnd <= 4:
                 log("    -- Round %d --" % (rnd + 1), log_level)
                 p1text.move = p1text.coda[rnd]
@@ -166,8 +171,7 @@ while True:
                     player1.action(player1.action_checked)
                 else:
                     log("Game ended in a draw.", log_level)
-                #reset_round() # Doesn't quite work anyway ;)
-                manual = False
+                reset_round() # Doesn't quite work anyway ;)
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
